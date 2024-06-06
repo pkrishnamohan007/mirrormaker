@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stg-kafka-mirror-maker
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: stg-kafka-mirror-maker
+  template:
+    metadata:
+      labels:
+        app: stg-kafka-mirror-maker
+    spec:
+      containers:
+        - name: stg-kafka-mirror-maker
+          image: 112140968541.dkr.ecr.eu-west-2.amazonaws.com/mirrormaker:latest
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: "500Mi"
+              cpu: "1000m"
+          env:
+            - name: SOURCE_CLUSTER_BOOTSTRAP_SERVERS
+              value: "b-1.prodcluster.d5zvkc.c3.kafka.eu-west-2.amazonaws.com:9092,b-3.prodcluster.d5zvkc.c3.kafka.eu-west-2.amazonaws.com:9092,b-2.prodcluster.d5zvkc.c3.kafka.eu-west-2.amazonaws.com:9092"
+            - name: SOURCE_CLUSTER_CONSUMER_GROUP
+              value: "stg-consumer"
+            - name: NUM_STREAMS
+              value: "5"
+            - name: WHITELISTED_TOPICS
+              value: "game-events-topic"
+            - name: SINK_CLUSTER_BOOTSTRAP_SERVERS
+              value: "b-1.devcluster.hupbda.c3.kafka.eu-west-2.amazonaws.com:9092,b-2.devcluster.hupbda.c3.kafka.eu-west-2.amazonaws.com:9092"
+            - name: LOG_LEVEL
+              value: INFO
